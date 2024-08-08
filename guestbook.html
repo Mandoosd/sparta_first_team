@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="kr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>방명록</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Stylish&display=swap');
+
+
+        .body,
+        button,
+        input,
+        select,
+        textarea,
+        .comment_text,
+        .name_text{
+            font-family: "Gothic A1", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .logo {
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .ddd {
+            color: #2d2d2d;
+            font-weight: bold;
+            font-size: 60px;
+            text-align: center;
+            margin: 50px 70px 20px auto;
+            font-family: "Trebuchet MS", Dotum, Arial;
+        }
+
+        .test {
+            height: 287px;
+            margin: 100px auto 0;
+            width: 503px;
+            border: solid;
+            font-size: 22px;
+        }
+
+        #topMenu {
+            background-color: #2d2d2d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80px;
+            width: 900px;
+            margin: auto;
+        }
+
+        #topMenu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+        #topMenu ul li {
+            margin: 0;
+        }
+
+        #topMenu .menuLink {
+            text-decoration: none;
+            color: white;
+            display: block;
+            width: 200px;
+            height: 50px;
+            line-height: 50px;
+            font-size: 12px;
+            font-weight: bold;
+            font-family: "Trebuchet MS", Dotum, Arial;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        #topMenu .menuLink:hover {
+            color: red;
+            background-color: #4d4d4d;
+        }
+
+        .form-floating {
+            background-image: url('blackboard.png');
+            background-position: center;
+            background-size: 100%;
+            border-image-source: url('wood.jpg');
+            border: 15px solid rgb(206, 172, 108);
+            border-radius: 10px;
+            width: 1000px;
+            height: 100%;
+            margin: 30px auto 30px auto;
+        }
+
+        .comment_box {
+            margin: 20px auto auto 20px;
+        }
+
+        #name {
+            width: 100px;
+            height: 20px;
+            text-align: center;
+        }
+
+        #comment {
+            width: 97%;
+            height: 130px;
+            margin-top: 20px;
+        }
+
+        .comment_text,
+        .name_text {
+            color: aliceblue;
+        }
+
+        .name_text {
+            font-size: 18px;
+        }
+
+        #writebtn {
+            width: 100px;
+            height: 50px;
+            float: right;
+            margin-right: 25px;
+        }
+
+        .deletetbtn {
+            width: 80px;
+            height: 30px;
+            float: right;
+            margin: 15px 10px auto auto;
+        }
+
+        .fix {
+            width: 80px;
+            height: 30px;
+            float: right;
+            margin: 15px 10px auto auto;
+        }
+
+        #image {
+            margin: 100px auto 50px 30px;
+        }
+
+        .img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+
+        #incom {
+            margin-left: 20px;
+        }
+
+        #image_box {
+            border-top: 5px solid gray;
+            margin-right: 30px;
+        }
+
+        strong {
+            font-size: larger;
+            color: aliceblue;
+        }
+    </style>
+    <script type="module">
+        // Firebase SDK 라이브러리 가져오기
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+
+        // Firebase 개인 키값
+        const firebaseConfig = {
+            apiKey: "AIzaSyDbpCP-Cx2wzTweBUDUbpXwkGeewXSxzLY",
+            authDomain: "sparta-b3eff.firebaseapp.com",
+            projectId: "sparta-b3eff",
+            storageBucket: "sparta-b3eff.appspot.com",
+            messagingSenderId: "194725713248",
+            appId: "1:194725713248:web:1ec11cdf7c7db9001eba05",
+            measurementId: "G-PSWVGD13SP"
+        };
+
+
+        // Firebase 인스턴스 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+
+        //Firebase 데이터 업로드
+        $("#writebtn").click(async function () {
+            let name = $('#name').val();
+            let comment = $('#comment').val();
+            let key = Math.random().toString(36).substr(2, 9);
+            let doc = {
+                'name': name,
+                'comment': comment,
+                key: key,
+            };
+            await addDoc(collection(db, "comment"), doc);
+            alert('등록 완료!');
+            window.location.reload();
+        })
+
+
+        //Firebase 데이터 출력
+        let docs = await getDocs(collection(db, "comment"));
+        docs.forEach((doc) => {
+            let row = doc.data();
+            let name = row['name'];
+            let comment = row['comment'];
+            let key = row['key']
+            const temp = `
+            <p id="image_box">
+            <img src="https://i.pinimg.com/280x280_RS/66/ce/c1/66cec18796d258bffde99945565481a7.jpg" class="img">
+            <span class="name_text">${name}</span>
+            <button class="deletetbtn" id="${doc.id}">삭제</button>
+            <button class="fix" data-key="${key}">수정</button>
+            <br>
+            <p class="comment_text">${comment}</p>
+            </p>
+            <div class="edit_box" id="edit_${key}" style="display: none">
+                <textarea class="floatingText" placeholder="수정할 내용을 입력하세요" id="editComment_${key}"></textarea>
+                <button class="saveEdit" data-key="${key}" data-id="${doc.id}" id="edit_button_${key}">수정</button>
+            </div>
+            `
+            $('#image').append(temp);
+        });
+
+
+        //Firebase 데이터 삭제
+        $(document).on('click', '.deletetbtn', async function () {
+            const docId = $(this).attr('id');
+            console.log(docId);
+            await deleteDoc(doc(db, "comment", docId));
+            alert('삭제 완료!');
+            window.location.reload();
+        });
+
+
+        //댓글 수정칸 열기
+        $(document).on('click', '.fix', function () {
+            const key = $(this).data('key');
+            $(`#edit_${key}`).toggle();
+        });
+
+        //수정사항 업데이트
+        $(document).on('click', '.saveEdit', async function () {
+            const DOCID = $(this).data('id');
+            let key = $(this).data('key');
+            let editcomment = $(`#editComment_${key}`).val();
+            await updateDoc(doc(db, "comment", DOCID), {
+                'comment': editcomment
+            });
+
+            alert('수정이 완료되었습니다.');
+            window.location.reload();
+        });
+    </script>
+</head>
+
+
+<body>
+    <div class="container-fluid">
+        <div class="ddd">
+            <img src="LOGO B.png" class="logo" alt="Logo" width="80" height="80" class="d-inline-block align-text-top">
+            Semicolons
+        </div>
+    </div>
+    <nav id="topMenu">
+        <ul>
+            <li><a class="menuLink" href="mainpage.html">HOME</a></li>
+            <li><a class="menuLink" href="members.html">MEMBER</a></li>
+            <li><a class="menuLink" href="TMI.html">TMI</a></li>
+            <li><a class="menuLink" href="guestbook.html">방명록</a></li>
+
+        </ul>
+    </nav>
+
+    <div class="form-floating">
+        <div class="comment_box">
+            <strong style="font-size: 25px;">방명록</strong><br><br>
+            <textarea class="floatingText" placeholder="이름 입력" id="name"></textarea>
+            <textarea class="floatingText" placeholder="댓글을 남겨보세요" id="comment"></textarea>
+            <p>
+                <button id="writebtn">등록</button>
+            </p>
+        </div>
+        <div id="image">
+            <p id="image_box">
+                <img src="https://i.pinimg.com/280x280_RS/66/ce/c1/66cec18796d258bffde99945565481a7.jpg" class="img">
+                <span class="name_text">이름</span>
+                <button class="deletetbtn">삭제</button>
+                <button class="fix">수정</button>
+                <br>
+            <p class="comment_text">내용</p>
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>
